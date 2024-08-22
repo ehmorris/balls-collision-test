@@ -167,7 +167,7 @@ const balls = new Array(7).fill().map(() =>
       x: randomBetween(canvasWidth / 8, canvasWidth - canvasWidth / 8),
       y: randomBetween(canvasHeight / 8, canvasHeight - canvasHeight / 8),
     },
-    startVelocity: { x: randomBetween(-3, 3), y: randomBetween(-4, -2) },
+    startVelocity: { x: randomBetween(-12, 12), y: randomBetween(-12, -4) },
     radius: Math.min(canvasHeight, canvasWidth) / 16,
   })
 );
