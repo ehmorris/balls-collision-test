@@ -99,66 +99,69 @@ const checkCollision = (ballA, ballB) => {
 };
 
 const resolveCollision = (ballA, ballB) => {
-  const relVel = [
-    ballB.getVelocity().x - ballA.getVelocity().x,
-    ballB.getVelocity().y - ballA.getVelocity().y,
-  ];
+  const relativeVelocity = {
+    x: ballB.getVelocity().x - ballA.getVelocity().x,
+    y: ballB.getVelocity().y - ballA.getVelocity().y,
+  };
 
-  let norm = [
-    ballB.getPosition().x - ballA.getPosition().x,
-    ballB.getPosition().y - ballA.getPosition().y,
-  ];
+  const norm = {
+    x: ballB.getPosition().x - ballA.getPosition().x,
+    y: ballB.getPosition().y - ballA.getPosition().y,
+  };
+  const mag = Math.sqrt(norm.x * norm.x + norm.y * norm.y);
+  norm.x /= mag;
+  norm.y /= mag;
 
-  const mag = Math.sqrt(norm[0] * norm[0] + norm[1] * norm[1]);
+  const velocityAlongNorm =
+    relativeVelocity.x * norm.x + relativeVelocity.y * norm.y;
 
-  norm = [norm[0] / mag, norm[1] / mag];
-
-  const velAlongNorm = relVel[0] * norm[0] + relVel[1] * norm[1];
-  if (velAlongNorm > 0) return;
+  if (velocityAlongNorm > 0) return;
 
   const bounce = 0.7;
-  let j = -(1 + bounce) * velAlongNorm;
+  let j = -(1 + bounce) * velocityAlongNorm;
   j /= 1 / ballA.getRadius() + 1 / ballB.getRadius();
-  const impulse = [j * norm[0], j * norm[1]];
+  const impulse = { x: j * norm.x, y: j * norm.y };
 
   ballA.setVelocity({
-    x: ballA.getVelocity().x - (1 / ballA.getRadius()) * impulse[0],
-    y: ballA.getVelocity().y - (1 / ballA.getRadius()) * impulse[1],
+    x: ballA.getVelocity().x - (1 / ballA.getRadius()) * impulse.x,
+    y: ballA.getVelocity().y - (1 / ballA.getRadius()) * impulse.y,
   });
+
   ballB.setVelocity({
-    x: ballB.getVelocity().x + (1 / ballB.getRadius()) * impulse[0],
-    y: ballB.getVelocity().y + (1 / ballB.getRadius()) * impulse[1],
+    x: ballB.getVelocity().x + (1 / ballB.getRadius()) * impulse.x,
+    y: ballB.getVelocity().y + (1 / ballB.getRadius()) * impulse.y,
   });
 };
 
 const adjustPositions = (ballA, ballB, depth) => {
-  //Inefficient implementation for now
   const percent = 0.2;
   const slop = 0.01;
-  let correction =
+  let correctionNum =
     (Math.max(depth - slop, 0) /
       (1 / ballA.getRadius() + 1 / ballB.getRadius())) *
     percent;
 
-  let norm = [
-    ballB.getPosition().x - ballA.getPosition().x,
-    ballB.getPosition().y - ballA.getPosition().y,
-  ];
-  const mag = Math.sqrt(norm[0] * norm[0] + norm[1] * norm[1]);
-  norm = [norm[0] / mag, norm[1] / mag];
-  correction = [correction * norm[0], correction * norm[1]];
+  const norm = {
+    x: ballB.getPosition().x - ballA.getPosition().x,
+    y: ballB.getPosition().y - ballA.getPosition().y,
+  };
+  const mag = Math.sqrt(norm.x * norm.x + norm.y * norm.y);
+  norm.x /= mag;
+  norm.y /= mag;
+
+  const correction = { x: correctionNum * norm.x, y: correctionNum * norm.y };
 
   ballA.setPosition({
-    x: ballA.getPosition().x - (1 / ballA.getRadius()) * correction[0],
-    y: ballA.getPosition().y - (1 / ballA.getRadius()) * correction[1],
+    x: ballA.getPosition().x - (1 / ballA.getRadius()) * correction.x,
+    y: ballA.getPosition().y - (1 / ballA.getRadius()) * correction.y,
   });
   ballB.setPosition({
-    x: ballB.getPosition().x + (1 / ballB.getRadius()) * correction[0],
-    y: ballB.getPosition().y + (1 / ballB.getRadius()) * correction[1],
+    x: ballB.getPosition().x + (1 / ballB.getRadius()) * correction.x,
+    y: ballB.getPosition().y + (1 / ballB.getRadius()) * correction.y,
   });
 };
 
-const balls = new Array(9).fill().map(() =>
+const balls = new Array(7).fill().map(() =>
   makeBall({
     startPosition: {
       x: randomBetween(canvasWidth / 8, canvasWidth - canvasWidth / 8),
